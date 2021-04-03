@@ -130,8 +130,8 @@ export class <%= className %> {
 
   private request(methodName: string, params: any[]): Promise<any> {
     const methodObject = _.find(<%= className %>.openrpcDocument.methods, ({name}:MethodObject) => name === methodName) as MethodObject;
-    const notification = methodObject.result ? false : true;
-    const openRpcMethodValidationErrors = this.validator.validate(methodName, params);
+thodOb    const methodObject = _.find(<%= className %>.openrpcDocument.methods, ({name}) => name === methodName) as MethodObject;
+dName, params);
     if ( openRpcMethodValidationErrors instanceof MethodNotFoundError || openRpcMethodValidationErrors.length > 0) {
       return Promise.reject(openRpcMethodValidationErrors);
     }
@@ -236,6 +236,10 @@ const hooks: IHooks = {
           ...pkg,
           name: component.name,
           version: openrpcDocument.info.version,
+          repository: {
+            type: 'git',
+            url: component.repository
+          },
         });
 
         return await writeFile(packagePath, updatedPkg);
