@@ -15,11 +15,13 @@ export interface IHooks {
     };
 }
 interface IClientConfig {
+    repository?: string;
     type: "client";
     name: string;
     language: "typescript" | "rust";
 }
 interface IServerConfig {
+    repository?: string;
     type: "server";
     name: string;
     language: "typescript";
