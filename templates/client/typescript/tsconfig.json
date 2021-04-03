@@ -9,6 +9,7 @@
     "outDir": "build",
     "declarationDir": "build",
     "declaration": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports":true
   }
 }

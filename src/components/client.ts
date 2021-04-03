@@ -148,7 +148,7 @@ export class <%= className %> {
     return this.rpc.request({method: methodName, params: rpcParams}, this.timeout);
   }
 
-  <% openrpcDocument.methods.forEach((method) => { %>
+  <% openrpcDocument.methods.filter((m)=>!m.namespace).forEach((method) => { %>
   /**
    * <%= method.summary %>
    */
@@ -157,6 +157,23 @@ export class <%= className %> {
     return this.request("<%= method.name %>", params);
   }
   <% }); %>
+
+  <% openrpcDocument.namespaces.forEach((namespace) => { %>
+  public <%= namespace.name %> = new class{
+    constructor(public superThis: <%= className %>) {
+    }
+    <% namespace.methods.forEach((method) => { %>
+    /**
+     * <%= method.summary %>
+     */
+    // tslint:disable-next-line:max-line-length
+    public <%= method.validName %>: <%= methodTypings.getTypingNames("typescript", method).method %> = (...params) => {
+      return this.superThis.request("<%= method.name %>", params);
+    }
+    <% }); %>
+  }(this);
+  <% }); %>
+
 }
 export default <%= className %>;
 `);
@@ -179,6 +196,35 @@ const hooks: IHooks = {
         return await move(path.join(dest, "_package.json"), path.join(dest, "package.json"), { overwrite: true });
       }
     },
+  ],
+  beforeCompileTemplate:[
+    async (dest, frm, component, openrpcDocument,typings): Promise<void> => {
+      if (component.language === "typescript") {
+        // dark magic here
+        let namespaceCollection:any = {};
+        for(let method of openrpcDocument.methods){
+          if(method.name.includes(".")){
+            let [ namespace , methodName ] = method.name.split(/\.(.+)/)
+            method.namespace = namespace;
+            method.validName = methodName;
+            if(!namespaceCollection[namespace]){
+              namespaceCollection[namespace] = [];
+            }
+            namespaceCollection[namespace].push(method)
+          }
+        }
+        openrpcDocument.namespaces = [];
+        for(const  key in namespaceCollection){
+          if (namespaceCollection.hasOwnProperty(key)) {
+            openrpcDocument.namespaces.push({
+              name:key,
+              methods:namespaceCollection[key]
+            })
+          }
+        }
+      }
+      // console.log(dest, frm, component, openrpcDocument,typings);
+    }
   ],
   afterCompileTemplate: [
     async (dest, frm, component, openrpcDocument): Promise<void> => {
