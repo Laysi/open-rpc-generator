@@ -103,14 +103,14 @@ const copyStaticForComponent = async (
 };
 
 interface IClientConfig {
-  repository: string;
+  repository?: string;
   type: "client";
   name: string;
   language: "typescript" | "rust";
 }
 
 interface IServerConfig {
-  repository: string;
+  repository?: string;
   type: "server";
   name: string;
   language: "typescript";
